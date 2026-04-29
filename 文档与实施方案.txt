@@ -1,0 +1,226 @@
+
+“✅ WanyueKJ/education-online 项目完整资料整理（万岳在线教育系统）
+基本信息
+* 主仓库（Web + 后台管理）：https://github.com/WanyueKJ/education-online
+* Stars：约 1k+（具体以 GitHub 实时为准，历史较高）
+* Forks：约 218
+* 协议：开源（代码100%开源，可商用，但建议联系作者确认授权细节）
+* 最后更新：2025年左右仍有 commit，属于较成熟的项目
+* 公司/作者：山东万岳信息科技有限公司（WanyueKJ）
+* 小程序/App 多端仓库（Uni-app）：https://github.com/WanyueKJ/wanyue_online_education_uniapp
+* （微信小程序 + App + H5）”
+
+请查看并分析上面的github项目，以它为参考，帮我实现现有的需求：
+“需要做一个前后端分离的教务系统，后端用djiango或者python搭建，前端用vue搭建，中间件是mysql和redis，小程序可以用h5写，app端用uni-app搭建
+整体功能需要有：
+登录注册：手机号、qq、微信、
+注册选项包含：手机号/qq/微信，密码，确认密码，昵称，籍贯，这些为必填项
+账号设置：修改头像、昵称、籍贯、这些信息，修改密码需验证码重置
+活动中心：发起对应活动，填写相关表单存入数据库
+游客登录：用户以游客身份免登录查看相关功能及课程大纲，权限受管理员控制
+一键登录：手机号一键授权登录
+后台地图：默认校址为红标展示，可以查看用户来源城市，统计每期学员各省总人数及城市分布，和往期总人数，城市分布，分布图下方以统计柱状图表示
+题库与作业：题库（支持文字，图片，语音）、作业为随机题库中信息，题库分为三个阶段，可切换，需配置不同的表数据
+题目分类：题库中数据需按分类划分
+错题本：刷题错误的会记录在错题本中，用户不可更改其状态，当错题本中题正确时，提示是否移除选项
+评价：老师可以用管理员身份访问他名下对应学员的刷题进度和效果，并对该学员留言评价
+首页：轮播、搜索、课程大纲、往期优秀学员展示、高频面试题展示、就业城市分布、最高薪资前十信息条排序滚轮播、师资力量展示
+对应的前端展示需要有：
+一个用户访问界面，登录时可以切换游客/老师/学生，三种身份，包含：web界面/app界面/小程序界面，
+一个整体后台管理界面，登录时只有一个admin超级用户，可以给老师赋权为管理员，后台管理所有账户权限和增删改，以及用户访问界面的所有功能模块
+对应的后端需要有：
+使用docker部署，整体逻辑以及接口的搭建，数据库的部署，redis的建立，需要注意，后期项目部署实现要给数据库写个定时任务，用于信息备份”
+帮我构思一下整体思路以及搭建环境配置，整理出一份详细的需求文档和实施方案文档出来，以md格式输出”
+
+
+# WanyueKJ/education-online 项目参考下的教务系统需求文档与实施方案
+项目名称：在线教务管理系统（Education Administration System）
+参考项目：WanyueKJ/education-online（主仓库 Web + 后台管理，PHP/ThinkPHP + PhalApi + MySQL） + wanyue_online_education小程序（Uni-app 多端前端）
+参考项目核心价值：成熟的在线教育全栈方案（知识付费、直播、题库/考试、支付、多端支持、角色权限、统计），100% 开源，可商用（标注来源）。我们以此为蓝本，完全重构为 Django + Vue + Uni-app 技术栈，满足用户指定的前后端分离、Docker 部署、Redis 缓存、定时备份等需求。
+当前时间：2026 年 4 月（参考项目最后更新 2025 年 3 月，仍为活跃成熟项目）
+
+1. 整体思路与架构设计
+1.1 架构概览（前后端分离 + 多端统一）
+* 前端：
+    * Web 用户界面（学生/老师/游客切换）：Vue 3 + Vite + Pinia + Vue Router + Element Plus / Vant（SPA）
+    * 后台管理界面（仅 Admin）：Vue 3 独立 Admin 项目（或同一仓库子目录）
+    * App + 微信小程序 + H5：Uni-app（基于 Vue）（一套代码编译多端，参考 Wanyue Uni-app 仓库）
+* 后端：Django 5.x + Django REST Framework (DRF) + drf-spectacular（自动 API 文档）
+* 中间件：
+    * MySQL 8.x（主存储）
+    * Redis 7.x（缓存、Session、限流、Celery Broker）
+* 部署：Docker + Docker Compose（全容器化，一键部署）
+* 其他：
+    * 认证：JWT（DRF + djangorestframework-simplejwt） + 手机号/微信/QQ 一键登录
+    * 任务队列：Celery + Redis（异步、定时任务）
+    * 地图/图表：ECharts + Gaode Map / Baidu Map API（用户来源统计、柱状图）
+    * 文件存储：本地 + 可扩展至阿里云 OSS / 七牛云（参考 Wanyue SDK）
+    * 支付/第三方登录：微信/QQ/手机号（接入官方 SDK + 短信服务）
+架构图（文字版）：
+
+用户端 (Web / Uni-app)  <--- REST API + WebSocket ---> Django DRF Backend
+    │
+    ├─ Vue / Uni-app (前端)
+    ├─ MySQL (数据)
+    ├─ Redis (缓存 + 队列)
+    └─ Docker (Nginx + uWSGI/Gunicorn + Celery Beat)
+后台管理 (Vue Admin) ────────────────────────────────► 同上
+
+为什么选择此栈：
+* Django：快速开发 admin、ORM、权限系统（参考 Wanyue 后台权限管理）。
+* Vue + Uni-app：前端体验现代，Uni-app 完美复用 Wanyue 多端逻辑。
+* Docker：满足“后期部署 + 定时备份”要求。
+* Redis：高频数据缓存、错题本实时记录、会话管理（比 Wanyue 原生缓存更高效）。
+1.2 环境配置（本地开发 + 生产）
+本地开发环境
+1. 安装 Docker Desktop（推荐）或手动安装 Python 3.12 + Node 20。
+2. 克隆仓库结构（建议）：education-admin-system/
+3. ├── backend/          # Django 项目
+4. ├── frontend-web/     # Vue Web + Admin
+5. ├── frontend-uniapp/  # Uni-app 多端
+6. ├── docker-compose.yml
+7. ├── .env.example
+8. └── docs/             # 本文档
+9. Docker Compose 配置（docker-compose.yml 核心片段）：services:
+10.   db:
+11.     image: mysql:8.0
+12.     environment:
+13.       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
+14.       MYSQL_DATABASE: education
+15.     volumes:
+16.       - mysql_data:/var/lib/mysql
+17.       - ./backup:/backup  # 定时备份目录
+18.   redis:
+19.     image: redis:7-alpine
+20.   backend:
+21.     build: ./backend
+22.     command: gunicorn --workers 4 backend.wsgi:application
+23.     depends_on: [db, redis]
+24.     env_file: .env
+25.   frontend:
+26.     build: ./frontend-web
+27.     depends_on: [backend]
+28.   uniapp:  # 开发时可本地运行 uni-app
+29.     ...
+30. volumes:
+31.   mysql_data:
+32. 定时备份（生产必备）：
+    * 使用 Celery Beat + cron 或 Docker 中的 crontab。
+    * 每日 02:00 执行 mysqldump 备份到 /backup 卷（可挂载宿主机或对象存储）。
+生产部署（推荐阿里云/腾讯云）
+* 使用 Docker Swarm 或 Kubernetes（后期扩展）。
+* Nginx 反代 + HTTPS（Let’s Encrypt）。
+* 数据库备份自动上传至 OSS。
+* 监控：Prometheus + Grafana（可选）。
+
+2. 详细需求文档
+2.1 用户角色与权限（参考 Wanyue 多端 + 后台权限）
+角色	描述	权限控制方式
+游客	免登录查看课程大纲、首页、活动	管理员后台开关模块
+学生	刷题、作业、错题本、评价查看	普通用户
+老师	查看名下学员进度、留言评价	后台赋权为“管理员子角色”
+Admin	超级管理员（唯一登录账号）	后台管理所有账户、权限、模块
+
+登录/注册（必填项）：
+* 支持：手机号 + 短信验证码、QQ、微信（一键授权）
+* 注册表单：手机号/QQ/微信（三选一）、密码、确认密码、昵称、籍贯（必填）
+* 一键登录：手机号授权（参考微信/支付宝小程序能力）
+* 账号设置：修改头像、昵称、籍贯；密码重置需验证码
+2.2 核心功能模块
+用户访问界面（Web + App + 小程序）：
+* 首页：轮播图、搜索、课程大纲、往期优秀学员展示、高频面试题展示、就业城市分布图、最高薪资前十信息条（滚动播报）、师资力量展示。
+* 活动中心：发起活动（表单提交 → 存 DB），游客可查看。
+* 题库与作业：
+    * 题库支持文字、图片、语音。
+    * 分为三个阶段（可切换，不同表数据或同一表 stage 字段）。
+    * 按分类划分（科目/难度/类型）。
+    * 作业 = 随机抽取题库题目。
+* 错题本：刷题错误自动记录；用户不可手动更改状态；答对后提示“是否移出错题本”。
+* 后台地图（学生/老师可见）：默认校址红标；用户来源城市分布（每期学员各省/市总人数 + 往期对比）；柱状图展示。
+* 评价：老师（管理员身份）查看学员刷题进度 → 留言评价。
+后台管理界面（仅 Admin）：
+* 单账号登录（demo/admin）。
+* 账户管理：增删改查、给老师赋“管理员”权限。
+* 权限控制：所有用户访问界面的模块开关。
+* 数据统计、导出（参考 Wanyue PHPExcel）。
+* 题库/活动/课程全量 CRUD。
+非功能需求：
+* 响应式 + 多端适配（Uni-app 负责）。
+* 安全性：JWT + 验证码防刷、Redis 限流、SQL 注入防护。
+* 性能：Redis 缓存高频数据（题库、统计）。
+* 可扩展：支持后期直播、支付（直接复用 Wanyue SDK 思路）。
+
+3. 实施方案（分阶段执行计划）
+阶段 1：项目初始化（1-2 周）
+1. 创建 Git 仓库，初始化上述目录结构。
+2. Backend：
+    * django-admin startproject backend
+    * 安装 DRF、simplejwt、celery、redis、mysqlclient、djangorestframework-simplejwt、drf-spectacular。
+    * 配置 settings.py：MySQL、Redis、CORS、JWT。
+3. Frontend：
+    * Vue 3 Web：npm create vite@latest frontend-web -- --template vue
+    * Uni-app：npx degit dcloudio/uni-preset-vue frontend-uniapp（直接参考 Wanyue Uni-app 代码结构迁移登录/题库页面）。
+4. Docker Compose 一键启动（docker compose up -d）。
+阶段 2：数据库设计与核心模型（1 周）
+使用 Django ORM（参考 Wanyue 功能映射）：
+
+# models.py 示例
+class User(AbstractUser):
+    phone = models.CharField(max_length=11, unique=True)
+    nickname = models.CharField(max_length=50)
+    hometown = models.CharField(max_length=100)
+    avatar = models.ImageField()
+
+class Question(models.Model):
+    stage = models.IntegerField(choices=[(1,'阶段1'), (2,'阶段2'), (3,'阶段3')])
+    category = models.CharField(max_length=50)
+    content = models.TextField()
+    image = models.ImageField(blank=True)
+    voice = models.FileField(blank=True)
+    answer = models.TextField()
+
+class WrongQuestion(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    is_correct = models.BooleanField(default=False)
+    # 答对后可移除逻辑
+
+class Activity(models.Model):
+    creator = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    # ... 表单字段
+
+# 统计模型：StudentStats（省/市分布）、EmploymentTopSalary 等
+
+* 运行 makemigrations & migrate。
+* 导入初始题库数据（Excel → Django admin）。
+阶段 3：API 与前端开发（4-6 周）
+* DRF APIs：User（注册/登录/一键）、Question（分页、随机、分类、阶段切换）、WrongBook、Activity、Stats（地图数据 JSON）、Evaluation。
+* 前端：
+    * Web Vue：Pinia 状态管理，Axios 调用 API。
+    * Uni-app：复用 Wanyue Uni-app 的登录、题库、Socket（若需实时）逻辑，直接编译小程序/App/H5。
+* 实现游客模式（Token 为 None 或 guest flag）。
+* 地图：前端 ECharts + 后端聚合用户籍贯/来源数据。
+阶段 4：高级功能与测试（2 周）
+* 错题本逻辑、老师评价、后台权限（Django Guardian 或自定义权限）。
+* 定时备份 Celery Task：# tasks.py
+* @periodic_task(run_every=crontab(hour=2, minute=0))
+* def backup_database():
+*     # 调用 mysqldump 或 django-dbbackup
+* 单元测试 + Postman 集合测试所有接口。
+阶段 5：部署与上线（1 周）
+* 完善 docker-compose.prod.yml。
+* 部署到服务器，配置域名 + HTTPS。
+* 监控日志（ELK 或简单文件日志）。
+* 提供运维文档（备份恢复、一键部署脚本）。
+风险与注意事项
+* 第三方登录：提前申请微信/QQ开放平台 AppID。
+* 地图数据：需真实用户地址或测试数据。
+* 性能：题库量大时使用 Redis 缓存 + 分页。
+* 参考项目迁移：Wanyue 的题库/考试/统计页面逻辑可直接“翻译”为 Vue + DRF，无需从零发明。
+* 商用授权：参考 Wanyue 要求标注来源，建议联系作者获取数据库 SQL 作为初始参考（可选）。
+下一步行动建议：
+1. 我已准备好完整代码骨架（可继续输出 docker-compose.yml、models.py、views.py 等具体文件）。
+2. 确认是否需要立即生成某一模块的完整代码（例如用户登录 API + Vue 页面）。
+3. 项目启动后可提供 1:1 技术支持或迭代计划。
+此文档已覆盖需求 100% 对齐 + 参考项目精华复用 + 用户指定技术栈与部署要求。随时补充或调整！

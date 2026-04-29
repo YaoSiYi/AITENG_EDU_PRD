@@ -1,0 +1,14 @@
+services:
+  courseware-web:
+    build: .
+    ports:
+      - "8080:80"
+    restart: always
+    environment:
+      - NODE_ENV=production
+    networks:
+      - web-network
+
+networks:
+  web-network:
+    driver: bridge

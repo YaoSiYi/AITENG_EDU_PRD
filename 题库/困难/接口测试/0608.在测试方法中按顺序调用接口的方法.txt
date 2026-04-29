@@ -1,0 +1,37 @@
+在测试方法中调用接口：
+具体实现是根据业务场景，在测试方法中先调用第一个接口，根据返回的数据，把数据中的有用值提取出来，然后存在变量中，然后在下一个接口的请求头中引用变量的值，以这样的方式来做接口关联
+
+测试方法按顺序调用，分别为 创建订单接口 和 支付接口
+
+def test_order_pay():
+    '''
+    创建订单->支付
+    '''
+    url_order = "https://xxx/order"
+    data_order = {
+        "goodsId": 10,
+        "goodsSkuId": 33,
+        "num": 1,
+        #...
+    }
+
+    # 先调用创建订单接口生成订单，得到返回结果，获取订单号
+    res_order = requests.post(url=url_order, json=data_order)
+    trade_data = res_order.json()
+
+    # 订单号
+    tradeNo   =  trade_data["tradeNo"]
+
+    # 将订单号变量tradeNo作为支付接口的某一参数，再请求支付接口
+    url_pay = "https://xxx/pay"
+    data_pay = {
+        "orderNo": tradeNo, # 订单号
+        "product": "alipayWapClient"
+    }
+    res_data = requests.post(url=url_pay, json=data_pay)
+    res_pay = res_data.json()
+
+    # 断言
+    assert res_pay["code"]==0
+    assert res_pay["data"]["payNo"]
+    assert res_pay["data"]["certificate"]

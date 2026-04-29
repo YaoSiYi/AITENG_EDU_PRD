@@ -1,0 +1,104 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}批量导入用户{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <div class="module" style="max-width: 800px; margin: 40px auto;">
+        <h1 style="margin-bottom: 30px; color: #417690;">批量导入用户</h1>
+
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+            <h3 style="margin-top: 0; color: #666;">📋 导入说明</h3>
+            <ul style="line-height: 1.8; color: #666;">
+                <li>请使用 CSV 格式文件（UTF-8 编码）</li>
+                <li>必填字段：<strong>username</strong>（用户名）、<strong>password</strong>（密码）</li>
+                <li>可选字段：nickname（昵称）、phone（手机号）、qq（QQ号）、hometown（籍贯）、password_hint（密码提示）、period（期数）、study_status（学习状态）、role（角色）、is_active（是否激活）</li>
+                <li>学习状态可选值：<code>studying</code>（在读）、<code>graduated</code>（毕业），默认为 <code>studying</code></li>
+                <li>角色可选值：<code>student</code>（学生）、<code>teacher</code>（老师）、<code>admin</code>（管理员），默认为 <code>student</code></li>
+                <li>是否激活可选值：<code>True</code>、<code>False</code>，默认为 <code>True</code></li>
+                <li>如果用户名已存在，该行将被跳过</li>
+            </ul>
+        </div>
+
+        <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 30px; border-left: 4px solid #ffc107;">
+            <strong style="color: #856404;">⚠️ 注意事项：</strong>
+            <ul style="margin: 10px 0 0 0; color: #856404;">
+                <li>导入前请先下载模板，按照模板格式填写数据</li>
+                <li>确保 CSV 文件使用 UTF-8 编码，避免中文乱码</li>
+                <li>建议先小批量测试导入，确认无误后再批量导入</li>
+                <li>导入过程不可撤销，请谨慎操作</li>
+            </ul>
+        </div>
+
+        <div style="margin-bottom: 30px;">
+            <a href="{% url 'admin:users_user_download_template' %}"
+               class="button"
+               style="background: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block; margin-bottom: 20px;">
+                📥 下载 CSV 模板
+            </a>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            {% csrf_token %}
+
+            <div style="margin-bottom: 20px;">
+                <label for="csv_file" style="display: block; margin-bottom: 10px; font-weight: bold; color: #333;">
+                    选择 CSV 文件：
+                </label>
+                <input type="file"
+                       name="csv_file"
+                       id="csv_file"
+                       accept=".csv"
+                       required
+                       style="padding: 10px; border: 2px dashed #ddd; border-radius: 4px; width: 100%; cursor: pointer;">
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 30px;">
+                <button type="submit"
+                        class="button default"
+                        style="background: #417690; color: white; padding: 12px 30px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">
+                    🚀 开始导入
+                </button>
+                <a href="{% url 'admin:users_user_changelist' %}"
+                   class="button"
+                   style="padding: 12px 30px; text-decoration: none; border-radius: 4px; display: inline-block;">
+                    取消
+                </a>
+            </div>
+        </form>
+
+        <div style="margin-top: 30px; padding: 20px; background: #e7f3ff; border-radius: 8px; border-left: 4px solid #2196f3;">
+            <h3 style="margin-top: 0; color: #1976d2;">💡 CSV 文件示例</h3>
+            <pre style="background: white; padding: 15px; border-radius: 4px; overflow-x: auto; font-size: 12px; line-height: 1.6;">username,password,nickname,phone,qq,hometown,password_hint,period,study_status,role,is_active
+student001,password123,张三,13800138000,123456789,广东省深圳市,我的生日,2024-01-01期学员,studying,student,True
+student002,password456,李四,13800138001,987654321,北京市北京市,我的宠物名,2024-01-01期学员,graduated,student,True</pre>
+        </div>
+    </div>
+</div>
+
+<script>
+// 文件选择提示
+document.getElementById('csv_file').addEventListener('change', function(e) {
+    const fileName = e.target.files[0]?.name;
+    if (fileName) {
+        console.log('已选择文件:', fileName);
+    }
+});
+
+// 表单提交确认
+document.querySelector('form').addEventListener('submit', function(e) {
+    const fileInput = document.getElementById('csv_file');
+    if (!fileInput.files.length) {
+        alert('请选择要导入的 CSV 文件');
+        e.preventDefault();
+        return false;
+    }
+
+    if (!confirm('确认要导入该 CSV 文件吗？此操作不可撤销。')) {
+        e.preventDefault();
+        return false;
+    }
+});
+</script>
+{% endblock %}

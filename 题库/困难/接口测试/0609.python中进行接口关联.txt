@@ -1,0 +1,42 @@
+python中进行接口关联：
+使用pytest的fixture函数，把依赖的接口写成fixture函数，以供别的接口使用
+具体实现是将依赖的接口编写成fixture函数，并使用yield返回下个接口需要的参数，这样提供给下个接口使用其数据，以这样的方式来做接口关联
+
+
+定义fixture函数，创建订单接口，代码示例如下：
+@pytest.fixture()
+def get_order():
+    '''
+    请求下单接口，创建订单
+    '''
+    url_order = "https://xxx/order"
+    data_order = {
+        "goodsId": 10,
+        "goodsSkuId": 33,
+        "num": 1,
+        # ...
+    }
+    res_order = requests.post(url=url_order, json=data_order)
+    trade_data = res_order.json()
+
+    #订单编号
+    tradeNo = trade_data["tradeNo"]
+    yield tradeNo
+
+测试函数中为支付接口调用，fixture函数作为参数传入，get_order即为返回值tradeNo，代码示例如下：
+def test_pay(get_order):
+    '''
+    支付
+    '''
+    url_pay = "https://xxx/pay"
+    data_pay = {
+        "orderNo": get_order,  # get_order即为上面定义的fixture函数返回值 tradeNo
+        "product": "alipayWapClient"
+    }
+    res_data = requests.post(url=url_pay, json=data_pay)
+    res_pay = res_data.json()
+
+    # 断言
+    assert res_pay["code"] == 0
+    assert res_pay["data"]["payNo"]
+    assert res_pay["data"]["certificate"]

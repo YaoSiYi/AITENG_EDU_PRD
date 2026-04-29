@@ -1,0 +1,17 @@
+name = "personal-vue2"
+type = "javascript"
+
+[env.production]
+account_id = "your-account-id"
+project_name = "personal-vue2"
+compatibility_date = "2023-01-01"
+
+[env.staging]
+account_id = "your-account-id"
+project_name = "personal-vue2-staging"
+compatibility_date = "2023-01-01"
+
+# 静态站点配置
+[site]
+bucket = "./dist"
+entry-point = "."

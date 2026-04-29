@@ -1,0 +1,405 @@
+/* 响应式断点 */
+:root {
+  --breakpoint-xs: 480px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
+
+/* 移动端基础优化 */
+@media (max-width: 768px) {
+  /* 全局字体大小调整 */
+  html {
+    font-size: 14px;
+  }
+
+  /* 容器内边距调整 */
+  .questions-container,
+  .activities-container,
+  .stats-container,
+  .wrong-book-container,
+  .profile-container,
+  .admin-container {
+    padding: 20px 16px !important;
+  }
+
+  /* 页面标题调整 */
+  .page-title {
+    font-size: 32px !important;
+  }
+
+  .page-subtitle {
+    font-size: 14px !important;
+  }
+
+  /* 卡片间距调整 */
+  .question-card,
+  .activity-card,
+  .stat-card,
+  .wrong-question-card {
+    margin-bottom: 16px;
+  }
+
+  /* 按钮组调整 */
+  .header-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 12px !important;
+  }
+
+  .header-actions .el-input,
+  .header-actions .el-button {
+    width: 100% !important;
+  }
+
+  /* 网格布局调整 */
+  .questions-grid,
+  .activities-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .charts-row,
+  .performance-section {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* 侧边栏隐藏 */
+  .questions-content .sidebar,
+  .admin-sidebar {
+    display: none;
+  }
+
+  .questions-content,
+  .admin-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* 表格横向滚动 */
+  .el-table {
+    overflow-x: auto;
+  }
+
+  /* 对话框全屏 */
+  .el-dialog {
+    width: 95% !important;
+    margin: 20px auto !important;
+  }
+
+  .el-dialog__body {
+    padding: 16px !important;
+  }
+
+  /* 表单项调整 */
+  .el-form-item {
+    margin-bottom: 16px;
+  }
+
+  /* 统计卡片调整 */
+  .stat-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .stat-icon {
+    margin: 0 auto 12px;
+  }
+
+  /* 导航栏调整 */
+  .nav-links {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .nav-link {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+
+  /* Hero区域调整 */
+  .hero {
+    flex-direction: column;
+    padding: 40px 20px !important;
+  }
+
+  .hero-title {
+    font-size: 32px !important;
+  }
+
+  .hero-subtitle {
+    font-size: 16px !important;
+  }
+
+  .hero-visual {
+    margin-top: 40px;
+  }
+
+  /* 个人中心调整 */
+  .profile-banner {
+    height: 160px !important;
+  }
+
+  .profile-info {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px !important;
+  }
+
+  .user-stats {
+    justify-content: center;
+    gap: 20px !important;
+  }
+
+  .profile-content {
+    grid-template-columns: 1fr !important;
+  }
+
+  .content-sidebar {
+    order: 2;
+  }
+
+  .content-main {
+    order: 1;
+  }
+
+  /* 成就网格调整 */
+  .achievements-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .overview-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* 答题界面调整 */
+  .question-detail {
+    max-height: 80vh !important;
+  }
+
+  .answer-section {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* 活动卡片调整 */
+  .activity-banner {
+    height: 120px !important;
+  }
+
+  .activity-icon {
+    font-size: 48px !important;
+  }
+
+  /* 错题卡片调整 */
+  .question-meta {
+    flex-wrap: wrap;
+    gap: 12px !important;
+  }
+
+  /* 管理后台调整 */
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .table-toolbar {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .table-toolbar .el-input,
+  .table-toolbar .el-select {
+    width: 100% !important;
+  }
+
+  /* 分页调整 */
+  .el-pagination {
+    flex-wrap: wrap;
+    justify-content: center !important;
+  }
+
+  .el-pagination__sizes,
+  .el-pagination__jump {
+    display: none;
+  }
+}
+
+/* 平板适配 (768px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .questions-grid,
+  .activities-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .achievements-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .overview-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .admin-sidebar {
+    width: 200px !important;
+  }
+}
+
+/* 小屏幕优化 (480px以下) */
+@media (max-width: 480px) {
+  html {
+    font-size: 12px;
+  }
+
+  .page-title {
+    font-size: 24px !important;
+  }
+
+  .stats-grid,
+  .overview-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .stat-value {
+    font-size: 24px !important;
+  }
+
+  .hero-title {
+    font-size: 24px !important;
+  }
+
+  .hero-subtitle {
+    font-size: 14px !important;
+  }
+
+  .floating-card {
+    padding: 12px !important;
+    font-size: 12px !important;
+  }
+
+  .question-title,
+  .activity-title {
+    font-size: 16px !important;
+  }
+
+  .el-button {
+    padding: 8px 12px !important;
+  }
+}
+
+/* 触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+  /* 增大可点击区域 */
+  .nav-item,
+  .category-item,
+  .difficulty-tab,
+  .option-item {
+    min-height: 44px;
+    padding: 12px 16px !important;
+  }
+
+  /* 移除hover效果 */
+  .question-card:hover,
+  .activity-card:hover,
+  .nav-item:hover {
+    transform: none !important;
+  }
+
+  /* 优化滚动 */
+  .questions-content,
+  .admin-content,
+  .question-detail {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* 横屏模式优化 */
+@media (max-width: 768px) and (orientation: landscape) {
+  .hero {
+    padding: 20px !important;
+  }
+
+  .profile-banner {
+    height: 120px !important;
+  }
+
+  .activity-banner {
+    height: 100px !important;
+  }
+
+  .question-detail {
+    max-height: 70vh !important;
+  }
+}
+
+/* 打印样式 */
+@media print {
+  .header-actions,
+  .sidebar,
+  .admin-sidebar,
+  .nav-links,
+  .el-button,
+  .floating-card {
+    display: none !important;
+  }
+
+  .questions-content,
+  .admin-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  body {
+    background: white !important;
+  }
+
+  .question-card,
+  .activity-card,
+  .stat-card {
+    border: 1px solid #ddd !important;
+    page-break-inside: avoid;
+  }
+}
+
+/* 高对比度模式 */
+@media (prefers-contrast: high) {
+  .question-card,
+  .activity-card,
+  .stat-card {
+    border-width: 2px !important;
+  }
+
+  .page-title,
+  .question-title,
+  .activity-title {
+    font-weight: 900 !important;
+  }
+}
+
+/* 减少动画模式 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .floating-card {
+    animation: none !important;
+  }
+}
+
+/* 深色模式优化 */
+@media (prefers-color-scheme: dark) {
+  /* 已经是深色主题，保持现有样式 */
+}

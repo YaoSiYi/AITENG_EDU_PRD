@@ -1,0 +1,89 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "$SSH_KEY" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        ssh-keyscan -p "$DEPLOY_PORT" "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+        
+        cat >> ~/.ssh/config << EOF
+        Host deploy-server
+          HostName $DEPLOY_HOST
+          User $DEPLOY_USER
+          Port $DEPLOY_PORT
+          IdentityFile ~/.ssh/id_ed25519
+          StrictHostKeyChecking no
+        EOF
+        
+        chmod 600 ~/.ssh/config
+        chmod 700 ~/.ssh
+      env:
+        SSH_KEY: ${{ secrets.DEPLOY_KEY }}
+        DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+        DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        DEPLOY_PORT: ${{ secrets.DEPLOY_PORT || '22222' }}
+      
+    
+    - name: Test Connection
+      run: |
+        echo "测试SSH连接..."
+        ssh deploy-server "echo '✅ SSH连接成功 - 用户: \$(whoami) - 时间: \$(date)'"
+    
+    - name: Deploy Application
+      run: |
+        echo "🚀 开始部署 Django 应用..."
+        
+        ssh deploy-server "
+          set -e
+          echo '=== 部署流程开始 ==='
+          
+          # 进入项目目录
+          cd /home/admin/Personal-Django
+          echo '📁 当前目录: \$(pwd)'
+          
+          # 配置Git忽略文件权限变化
+          git config core.fileMode false
+          
+          # 暂存本地修改（如果有）
+          echo '📦 拉取最新代码...'
+          git stash || true
+          
+          # 根据分支拉取代码
+          BRANCH="\${GITHUB_REF##*/}"
+          echo "📌 当前分支: \$BRANCH"
+          git pull origin \$BRANCH
+          
+          # 显示最新提交信息
+          echo '📝 最新提交:'
+          git log --oneline -1
+          
+          # 执行部署脚本（设置CI环境变量自动清理）
+          echo '⚙️  执行部署脚本 deploy.sh...'
+          chmod +x deploy.sh
+          export CI=true
+          ./deploy.sh
+          
+          echo '✅ 部署完成 - \$(date)'
+        "
+    
+    - name: Deployment Summary
+      run: |
+        echo "🎉 部署流程执行完成"
+        echo "========================================"
+        echo "项目已部署到: /home/admin/Personal-Django"
+        echo "部署时间: $(date)"
+        echo "========================================"

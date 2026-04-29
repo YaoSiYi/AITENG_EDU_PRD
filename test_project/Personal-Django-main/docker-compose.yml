@@ -1,0 +1,89 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    security_opt:
+      - seccomp:unconfined
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py init_admin &&
+             python manage.py collectstatic --noinput &&
+             gunicorn DjangoProject.wsgi:application --bind 0.0.0.0:8000 --workers 1 --worker-class sync --max-requests 500 --max-requests-jitter 50 --timeout 30 --keep-alive 2 --preload"
+    volumes:
+      - static_volume:/app/staticfiles
+      - ./logs:/app/logs
+    ports:
+      - "8000:8000"
+    expose:
+      - "8000"
+    env_file:
+      - .env
+    secrets:
+      - db_user
+      - db_password
+      - secret_key
+    environment:
+      - DEBUG=${DEBUG:-0}
+      - DB_ENGINE=${DB_ENGINE:-django.db.backends.postgresql}
+      - DB_NAME=${DB_NAME:-neondb}
+      - DB_USER_FILE=/run/secrets/db_user
+      - DB_PASSWORD_FILE=/run/secrets/db_password
+      - DB_HOST=${DB_HOST:-ep-rapid-poetry-ad34w7x9-pooler.c-2.us-east-1.aws.neon.tech}
+      - DB_PORT=${DB_PORT:-5432}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS:-localhost 127.0.0.1}
+      - SECRET_KEY_FILE=/run/secrets/secret_key
+      - SERVER_IP=${SERVER_IP:-127.0.0.1}
+      - DB_OPTIONS=${DB_OPTIONS:-{}}
+    restart: unless-stopped
+    networks:
+      - django-network
+    deploy:
+      resources:
+        limits:
+          memory: 256M  # 调整内存限制，适应服务器资源
+          cpus: '0.5'
+        reservations:
+          memory: 128M
+          cpus: '0.25'
+    stop_grace_period: 10s
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - static_volume:/app/staticfiles
+    env_file:
+      - .env
+    environment:
+      - SERVER_IP=${SERVER_IP:-127.0.0.1}
+    depends_on:
+      - web
+    restart: unless-stopped
+    networks:
+      - django-network
+    deploy:
+      resources:
+        limits:
+          memory: 32M  # 减少nginx内存占用
+          cpus: '0.25'
+        reservations:
+          memory: 16M
+          cpus: '0.1'
+
+volumes:
+  static_volume:
+
+secrets:
+  db_user:
+    file: ./secrets/db_user.txt
+  db_password:
+    file: ./secrets/db_password.txt
+  secret_key:
+    file: ./secrets/secret_key.txt
+
+networks:
+  django-network:
+    driver: bridge

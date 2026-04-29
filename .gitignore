@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+.env
+.env.local
+backup/*.sql
+backup/*.gz
+*.pyc
+__pycache__/
+venv/
+.vscode/
+.idea/
+*.swp
+*.swo
+media/
+staticfiles/
