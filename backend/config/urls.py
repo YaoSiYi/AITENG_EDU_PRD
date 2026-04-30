@@ -18,6 +18,7 @@ urlpatterns = [
     path('api/stats/', include('apps.stats.urls')),
     path('api/evaluations/', include('apps.evaluations.urls')),
     path('api/testcases/', include('apps.testcases.urls')),
+    path('api/content/', include('apps.content.urls')),
 ]
 
 if settings.DEBUG:
