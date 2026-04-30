@@ -1,0 +1,152 @@
+/* 通用样式文件 */
+
+/* Flex布局 */
+.flex {
+  display: flex;
+}
+
+.flex-row {
+  flex-direction: row;
+}
+
+.flex-column {
+  flex-direction: column;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flex-around {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+/* 文字省略 */
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ellipsis-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.ellipsis-3 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+/* 卡片样式 */
+.card {
+  background: #ffffff;
+  border-radius: 12rpx;
+  padding: 32rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+/* 按钮样式 */
+.btn {
+  padding: 16rpx 32rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  text-align: center;
+  border: none;
+}
+
+.btn-primary {
+  background: #667eea;
+  color: #ffffff;
+}
+
+.btn-success {
+  background: #67c23a;
+  color: #ffffff;
+}
+
+.btn-warning {
+  background: #e6a23c;
+  color: #ffffff;
+}
+
+.btn-danger {
+  background: #f56c6c;
+  color: #ffffff;
+}
+
+.btn-info {
+  background: #909399;
+  color: #ffffff;
+}
+
+/* 标签样式 */
+.tag {
+  display: inline-block;
+  padding: 8rpx 16rpx;
+  border-radius: 8rpx;
+  font-size: 22rpx;
+}
+
+.tag-primary {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+}
+
+.tag-success {
+  background: rgba(103, 194, 58, 0.1);
+  color: #67c23a;
+}
+
+.tag-warning {
+  background: rgba(230, 162, 60, 0.1);
+  color: #e6a23c;
+}
+
+.tag-danger {
+  background: rgba(245, 108, 108, 0.1);
+  color: #f56c6c;
+}
+
+.tag-info {
+  background: rgba(144, 147, 153, 0.1);
+  color: #909399;
+}
+
+/* 分割线 */
+.divider {
+  height: 1rpx;
+  background: #eeeeee;
+  margin: 32rpx 0;
+}
+
+/* 加载动画 */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32rpx;
+}
+
+.loading-text {
+  font-size: 24rpx;
+  color: #999999;
+}

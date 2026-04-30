@@ -55,6 +55,20 @@
           </el-input>
         </el-form-item>
 
+        <el-form-item prop="period">
+          <el-input
+            v-model="form.period"
+            placeholder="期数（格式：YYYYMMDD，如：20240101）"
+            size="large"
+            maxlength="8"
+            clearable
+          >
+            <template #prefix>
+              <el-icon><Calendar /></el-icon>
+            </template>
+          </el-input>
+        </el-form-item>
+
         <el-form-item prop="password">
           <el-input
             v-model="form.password"
@@ -145,6 +159,7 @@ const form = reactive({
   nickname: '',
   phone: '',
   hometown: '',
+  period: '',
   password: '',
   confirmPassword: '',
   passwordHint: '',
@@ -163,6 +178,37 @@ const validateHometown = (rule, value, callback) => {
   } else {
     callback()
   }
+}
+
+// 验证期数格式
+const validatePeriod = (rule, value, callback) => {
+  if (!value) {
+    callback(new Error('请输入期数'))
+    return
+  }
+  const pattern = /^\d{8}$/
+  if (!pattern.test(value)) {
+    callback(new Error('期数格式应为8位数字，如：20240101'))
+    return
+  }
+  // 验证日期有效性
+  const year = parseInt(value.substring(0, 4))
+  const month = parseInt(value.substring(4, 6))
+  const day = parseInt(value.substring(6, 8))
+
+  if (year < 2000 || year > 2100) {
+    callback(new Error('年份应在2000-2100之间'))
+    return
+  }
+  if (month < 1 || month > 12) {
+    callback(new Error('月份应在01-12之间'))
+    return
+  }
+  if (day < 1 || day > 31) {
+    callback(new Error('日期应在01-31之间'))
+    return
+  }
+  callback()
 }
 
 // 验证确认密码
@@ -192,6 +238,9 @@ const rules = {
   hometown: [
     { validator: validateHometown, trigger: 'blur' }
   ],
+  period: [
+    { required: true, validator: validatePeriod, trigger: 'blur' }
+  ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     { min: 6, max: 20, message: '密码长度为 6-20 位字符', trigger: 'blur' }
@@ -219,6 +268,7 @@ const handleRegister = async () => {
       nickname: form.nickname,
       phone: form.phone,
       hometown: form.hometown,
+      period: form.period,
       password: form.password,
       confirm_password: form.confirmPassword,
       password_hint: form.passwordHint,

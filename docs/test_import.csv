@@ -1,0 +1,2 @@
+product,module,sub_module,test_point,title,description,precondition,steps,expected_result,actual_result,priority,status,stage,case_type,remark
+测试产品,测试模块,测试子模块,测试点,测试标题,测试描述,测试前置条件,1. 步骤1 2. 步骤2,预期结果,实际结果,高,有效,测试环境,功能测试,测试备注

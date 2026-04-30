@@ -37,6 +37,42 @@ CSV_HEADER = [
     'remark',
 ]
 
+# 中文到英文的映射字典
+PRIORITY_MAP = {
+    '低': 'low',
+    '中': 'medium',
+    '高': 'high',
+    '紧急': 'critical',
+    # 兼容英文
+    'low': 'low',
+    'medium': 'medium',
+    'high': 'high',
+    'critical': 'critical',
+}
+
+STATUS_MAP = {
+    '草稿': 'draft',
+    '有效': 'active',
+    '已废弃': 'deprecated',
+    '已关闭': 'closed',
+    # 兼容英文
+    'draft': 'draft',
+    'active': 'active',
+    'deprecated': 'deprecated',
+    'closed': 'closed',
+}
+
+STAGE_MAP = {
+    '冒烟测试': 'smoke',
+    '预发环境': 'pre_prod',
+    '生产环境': 'production',
+    '测试环境': 'smoke',  # 测试环境映射为冒烟测试
+    # 兼容英文
+    'smoke': 'smoke',
+    'pre_prod': 'pre_prod',
+    'production': 'production',
+}
+
 
 def sanitize_csv_cell(value: str) -> str:
     """
@@ -385,6 +421,16 @@ class TestCaseViewSet(viewsets.ModelViewSet):
                 errors.append({'row': idx, 'errors': suspicious_cells})
                 continue
 
+            # 获取原始值
+            priority_raw = (row.get('priority') or '').strip()
+            status_raw = (row.get('status') or '').strip()
+            stage_raw = (row.get('stage') or '').strip()
+            
+            # 使用映射转换中文到英文
+            priority = PRIORITY_MAP.get(priority_raw, TestCase.Priority.MEDIUM)
+            status_value = STATUS_MAP.get(status_raw, TestCase.Status.DRAFT)
+            stage = STAGE_MAP.get(stage_raw, None) if stage_raw else None
+            
             data = {
                 'product': (row.get('product') or '').strip(),
                 'module': (row.get('module') or '').strip(),
@@ -396,9 +442,9 @@ class TestCaseViewSet(viewsets.ModelViewSet):
                 'steps': (row.get('steps') or '').strip(),
                 'expected_result': (row.get('expected_result') or '').strip(),
                 'actual_result': (row.get('actual_result') or '').strip(),
-                'priority': (row.get('priority') or '').strip() or TestCase.Priority.MEDIUM,
-                'status': TestCase.Status.DRAFT,
-                'stage': (row.get('stage') or '').strip() or None,
+                'priority': priority,
+                'status': status_value,
+                'stage': stage,
                 'case_type': (row.get('case_type') or '').strip(),
                 'remark': (row.get('remark') or '').strip(),
             }

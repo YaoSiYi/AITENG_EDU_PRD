@@ -1,0 +1,12 @@
+product,module,sub_module,test_point,title,description,precondition,steps,expected_result,actual_result,priority,status,stage,case_type,remark
+部署启动,服务启动,端口管理,端口占用检查,端口占用导致服务无法启动,多个前端服务进程重复占用端口3000和3001导致服务无法正常启动,已有旧的开发服务器进程在运行,1. 检查端口占用情况 2. 发现重复进程 3. 尝试启动新服务,服务正常启动,服务启动失败提示端口被占用,高,已关闭,生产环境,功能测试,BUG-017停止重复进程并统一API配置
+后端Django,配置管理,ALLOWED_HOSTS,主机访问控制,Django ALLOWED_HOSTS配置错误,手机端访问Django API返回400 DisallowedHost错误,ALLOWED_HOSTS未包含局域网IP地址,1. 手机连接WiFi 2. 访问API接口 3. 查看返回状态,返回200正常响应,返回400 DisallowedHost错误,高,已关闭,生产环境,功能测试,BUG-018添加192.168.0.156到ALLOWED_HOSTS
+前端Web,API请求,接口调用,优秀学员API,Web前端API请求400错误,Web前端访问优秀学员API返回400错误,Django ALLOWED_HOSTS配置不完整,1. 打开Web前端首页 2. 加载优秀学员数据 3. 查看Network请求,数据正常加载,返回400错误,高,已关闭,生产环境,功能测试,BUG-019添加通配符到ALLOWED_HOSTS
+前端Uniapp,注册模块,用户协议,checkbox勾选,Uniapp注册页面checkbox无法勾选,注册页面用户协议checkbox勾选后仍提示未勾选,H5环境下checkbox的change事件不触发,1. 打开注册页面 2. 勾选用户协议 3. 点击注册按钮,注册成功,提示请阅读并同意用户协议,中,已关闭,测试环境,功能测试,BUG-020使用checkbox-group包裹checkbox
+前端Uniapp,注册模块,表单验证,密码确认,Uniapp注册API缺少confirm_password字段,注册提交时提示confirm_password字段必填,前端未传递confirm_password字段给后端,1. 填写注册信息 2. 点击注册 3. 查看API请求,注册成功,返回confirm_password必填错误,高,已关闭,测试环境,功能测试,BUG-021添加confirm_password字段到请求
+前端Uniapp,注册模块,错误提示,用户反馈,Uniapp注册错误信息显示不友好,注册失败时只显示请求失败无具体错误信息,request.js未解析字段验证错误,1. 填写错误信息注册 2. 提交表单 3. 查看错误提示,显示具体错误信息,只显示请求失败,低,已关闭,测试环境,功能测试,BUG-022改进错误信息解析逻辑
+前端Uniapp,注册模块,状态管理,用户注册,Uniapp注册模块userStore.register方法缺失,调用userStore.register时报错方法不存在,userStore中未实现register方法,1. 打开注册页面 2. 填写信息 3. 点击注册,注册成功,报错TypeError方法不存在,高,已关闭,测试环境,功能测试,BUG-023在userStore中添加register方法
+前端全栈,注册模块,表单字段,字段一致性,注册模块字段不一致,Web和Uniapp注册页面字段不一致,两端开发不同步,1. 对比Web和Uniapp注册页面 2. 检查字段差异,两端字段完全一致,字段数量和类型不一致,中,已关闭,测试环境,功能测试,BUG-024统一注册字段并添加密码显示隐藏
+前端Uniapp,注册模块,表单验证,用户名格式,用户名格式验证缺失,用户名可以输入特殊字符和中文,缺少格式验证,1. 输入特殊字符用户名 2. 提交注册,提示格式错误,注册成功,中,已关闭,测试环境,功能测试,BUG-025添加用户名格式验证字母或字母加数字
+前端全栈,注册模块,表单字段,期数字段,注册模块缺少期数字段,注册时无法填写期数信息,注册表单未包含期数字段,1. 打开注册页面 2. 查看表单字段,有期数输入框,无期数输入框,中,已关闭,测试环境,功能测试,BUG-026添加期数字段YYYYMMDD格式并实现验证
+后端Django,测试用例管理,CSV导入,中文值解析,测试用例CSV导入中文值解析失败,CSV文件中priority/status/stage字段使用中文值导致导入失败,CSV文件包含中文值（如"高"、"已关闭"、"生产环境"）,1. 打开测试用例管理页面 2. 点击导入 3. 上传包含中文值的CSV文件 4. 点击开始导入,导入成功,导入失败提示字段值无效,高,已关闭,测试环境,功能测试,BUG-027添加中文到英文的映射字典

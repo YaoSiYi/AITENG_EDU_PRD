@@ -22,7 +22,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'password', 'confirm_password', 'phone', 'qq',
-                  'wechat_openid', 'nickname', 'hometown', 'password_hint', 'gender']
+                  'wechat_openid', 'nickname', 'hometown', 'password_hint', 'gender', 'period']
 
     def validate(self, attrs):
         # 验证两次密码是否一致

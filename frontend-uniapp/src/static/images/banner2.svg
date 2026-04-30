@@ -1,0 +1,11 @@
+<svg width="750" height="400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f093fb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f5576c;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="750" height="400" fill="url(#grad2)"/>
+  <text x="375" y="180" font-family="Arial, sans-serif" font-size="48" fill="white" text-anchor="middle" font-weight="bold">10大阶段课程</text>
+  <text x="375" y="240" font-family="Arial, sans-serif" font-size="32" fill="white" text-anchor="middle">从基础到实战 全面提升</text>
+</svg>
