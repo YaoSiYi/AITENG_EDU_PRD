@@ -7,7 +7,7 @@
 // 开发环境：使用局域网IP，方便手机访问
 // 生产环境：使用实际域名
 const BASE_URL = process.env.NODE_ENV === 'production'
-  ? 'https://api.aiteng.com/api'  // 生产环境API地址
+  ? 'https://www.aitengjiaoyu.top/api'  // 生产环境API地址
   : 'http://192.168.0.156:8000/api'  // 开发环境使用局域网IP
 
 /**

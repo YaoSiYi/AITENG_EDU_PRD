@@ -15,3 +15,19 @@ venv/
 *.swo
 media/
 staticfiles/
+
+# 生产环境配置（包含敏感信息时不要提交）
+# 如果.env.production包含真实密码，请取消下面的注释
+# .env.production
+
+# SSL证书
+*.crt
+*.key
+*.pem
+
+# 部署包
+deploy_*/
+
+# 临时文件
+y
+y.pub

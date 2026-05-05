@@ -1,4 +1,9 @@
-const BASE_URL = 'http://192.168.0.156:8000/api'
+// ⚠️ 此文件已废弃，请使用 utils/request.js
+// 为了兼容性保留，但建议统一使用 utils/request.js
+
+const BASE_URL = process.env.NODE_ENV === 'production'
+  ? 'https://www.aitengjiaoyu.top/api'
+  : 'http://192.168.0.156:8000/api'
 
 class Request {
   request(options) {
