@@ -5,6 +5,48 @@
 
 ## 最近更新
 
+### 2026-05-07 - Cloudflare Tunnel 免备案部署 🌐
+
+#### 功能说明
+使用 Cloudflare Tunnel 实现免备案 HTTPS 访问，无需购买 SSL 证书。
+
+#### 访问地址
+| 地址 | 说明 |
+|------|------|
+| https://www.aitengjiaoyu.top | Web 管理后台 |
+| https://h5.aitengjiaoyu.top | H5 移动端 |
+| https://www.aitengjiaoyu.top/api/ | API 接口 |
+| https://www.aitengjiaoyu.top/admin/ | Django Admin |
+
+#### 管理员账号
+- **用户名**: `admin`
+- **密码**: `Admin@2026`
+
+#### 修复问题
+- ✅ **API路径重复**: 前端 baseURL 配置导致 `/api/api/` 重复，修复为正确路径
+- ✅ **前端超时**: API 请求超时时间从 10s 增加到 30s
+- ✅ **Docker构建**: 添加 VITE_API_BASE_URL 构建参数
+
+#### 技术架构
+```
+用户请求 → Cloudflare Edge → Cloudflare Tunnel → 服务器
+                                      ↓
+                              ┌─────────────────┐
+                              │  Docker 容器    │
+                              │  ├─ Backend     │
+                              │  ├─ Frontend    │
+                              │  ├─ MySQL       │
+                              │  └─ Redis       │
+                              └─────────────────┘
+```
+
+#### 修改文件
+- `frontend-web/src/utils/request.js` - 修复 baseURL，增加超时时间
+- `frontend-web/Dockerfile` - 添加 API 地址构建参数
+- `docker-compose.production.yml` - 传递 API 地址参数
+
+---
+
 ### 2026-05-07 - Docker容器化部署优化 🐳
 
 #### 问题背景

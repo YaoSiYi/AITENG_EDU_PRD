@@ -8,6 +8,11 @@
 
 ### Added
 
+- **Cloudflare Tunnel 免备案部署**：使用 Cloudflare Tunnel 实现 HTTPS 访问，无需备案和购买 SSL 证书
+  - 支持 `www.aitengjiaoyu.top` 和 `h5.aitengjiaoyu.top` 两个域名
+  - 自动 HTTPS 证书
+  - 全球 CDN 加速
+  - 隐藏真实服务器 IP
 - **测试用例列表快速更新功能**：支持在列表中直接点击修改「优先级」「状态」「冒烟」三个字段并实时保存（PATCH 部分更新），无需进入编辑弹窗。
   - 优先级：下拉选择（紧急/高/中/低）
   - 状态：下拉选择（草稿/有效/已废弃）
@@ -45,6 +50,8 @@
 - **端口占用导致服务无法启动**：清理重复的前端进程（3个），统一API配置使用局域网IP（192.168.0.156），修复CORS配置支持手机访问（BUG-017）
 - **Django ALLOWED_HOSTS配置错误**：添加局域网IP（192.168.0.156）到ALLOWED_HOSTS，修复手机端访问返回400 DisallowedHost错误（BUG-018）
 - **Web前端API请求400错误**：修复Django ALLOWED_HOSTS配置，添加通配符支持所有主机访问（开发环境）（BUG-019）
+- **API路径重复问题**：前端 `baseURL` 配置为 `/api`，但代码中 API 路径已包含 `/api` 前缀，导致请求路径变为 `/api/api/`，修复 `baseURL` 为空字符串（BUG-028）
+- **前端API请求超时**：Cloudflare Tunnel 代理增加网络延迟，将超时时间从 10s 增加到 30s（BUG-029）
 - **Uni-app注册页面checkbox无法勾选**：使用checkbox-group包裹checkbox组件，修复H5环境下change事件不触发的问题（BUG-020）
 - **Uni-app注册API缺少confirm_password字段**：在注册请求中添加confirm_password字段，修复后端验证失败问题（BUG-021）
 - **Uni-app注册错误信息显示不友好**：改进request.js错误信息解析，支持显示字段验证错误的详细信息（BUG-022）
