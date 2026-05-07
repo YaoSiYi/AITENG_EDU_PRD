@@ -26,6 +26,14 @@
 - ✅ **API路径重复**: 前端 baseURL 配置导致 `/api/api/` 重复，修复为正确路径
 - ✅ **前端超时**: API 请求超时时间从 10s 增加到 30s
 - ✅ **Docker构建**: 添加 VITE_API_BASE_URL 构建参数
+- ✅ **Django Admin 403**: 修复 CSRF 验证问题，添加 Cloudflare 代理中间件
+- ✅ **静态文件 404**: 配置 whitenoise 服务静态文件
+
+#### Django Admin 访问说明
+> **注意**: Django Admin 登录需要浏览器发送 Origin 或 Referer 头。如果遇到 403 错误，请确保：
+> 1. 使用 HTTPS 访问（不是 HTTP）
+> 2. 浏览器没有禁用 Referer 头
+> 3. 或者使用 API Token 访问（推荐）
 
 #### 技术架构
 ```

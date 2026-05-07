@@ -52,6 +52,8 @@
 - **Web前端API请求400错误**：修复Django ALLOWED_HOSTS配置，添加通配符支持所有主机访问（开发环境）（BUG-019）
 - **API路径重复问题**：前端 `baseURL` 配置为 `/api`，但代码中 API 路径已包含 `/api` 前缀，导致请求路径变为 `/api/api/`，修复 `baseURL` 为空字符串（BUG-028）
 - **前端API请求超时**：Cloudflare Tunnel 代理增加网络延迟，将超时时间从 10s 增加到 30s（BUG-029）
+- **Django Admin 403 错误**：Cloudflare Tunnel 代理导致 CSRF 验证失败，添加 `CloudflareProxyMiddleware` 处理 X-Forwarded-Proto 和 X-Forwarded-Host 头（BUG-030）
+- **静态文件 404 错误**：Django 生产环境不自动服务静态文件，添加 whitenoise 中间件并配置 STORAGES（BUG-031）
 - **Uni-app注册页面checkbox无法勾选**：使用checkbox-group包裹checkbox组件，修复H5环境下change事件不触发的问题（BUG-020）
 - **Uni-app注册API缺少confirm_password字段**：在注册请求中添加confirm_password字段，修复后端验证失败问题（BUG-021）
 - **Uni-app注册错误信息显示不友好**：改进request.js错误信息解析，支持显示字段验证错误的详细信息（BUG-022）

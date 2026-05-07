@@ -40,6 +40,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # 静态文件服务
+    'common.middleware.CloudflareProxyMiddleware',  # Cloudflare 代理处理
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -103,6 +105,13 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+# Django 5.x 存储配置
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
+
 # Media files
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -146,6 +155,26 @@ CORS_ALLOWED_ORIGINS = [
     "http://192.168.0.156:3000",
     "http://192.168.0.156:3001",
 ]
+
+# CSRF Settings - Cloudflare Tunnel 需要
+CSRF_TRUSTED_ORIGINS = [
+    "https://www.aitengjiaoyu.top",
+    "https://h5.aitengjiaoyu.top",
+    "http://www.aitengjiaoyu.top",
+    "http://h5.aitengjiaoyu.top",
+]
+
+# Cookie 设置 - 通过代理访问时需要
+CSRF_COOKIE_SECURE = False  # 允许 HTTP 发送 CSRF cookie
+SESSION_COOKIE_SECURE = False  # 允许 HTTP 发送 session cookie
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_HTTPONLY = False  # 允许 JavaScript 读取 CSRF cookie
+
+# 代理设置 - Cloudflare Tunnel
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+SECURE_SSL_REDIRECT = False  # 由 Cloudflare 处理 HTTPS 重定向
 
 # Redis
 REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
