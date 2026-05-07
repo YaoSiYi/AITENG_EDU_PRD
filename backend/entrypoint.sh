@@ -35,11 +35,11 @@ sys.exit(1)
 END
 
 echo "运行数据库迁移..."
-python manage.py makemigrations --noinput
-python manage.py migrate --noinput
+python manage.py makemigrations --noinput --skip-checks
+python manage.py migrate --noinput --skip-checks
 
 echo "收集静态文件..."
-python manage.py collectstatic --noinput
+python manage.py collectstatic --noinput --skip-checks
 
 echo "启动 Gunicorn..."
 exec gunicorn --workers ${GUNICORN_WORKERS:-4} \

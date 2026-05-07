@@ -1,4 +1,4 @@
-FROM node:20-alpine as builder
+FROM swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/library/node:20-alpine as builder
 
 WORKDIR /app
 
@@ -8,7 +8,7 @@ RUN npm install
 COPY . .
 RUN npm run build:h5
 
-FROM nginx:alpine
+FROM swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/library/nginx:alpine
 COPY --from=builder /app/dist/build/h5 /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 

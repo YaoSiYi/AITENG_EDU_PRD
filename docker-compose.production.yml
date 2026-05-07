@@ -1,10 +1,18 @@
 # 艾腾教育 - 生产环境 Docker Compose 配置
 # 使用方法: docker compose -f docker-compose.production.yml up -d
+# 
+# 端口映射（避免与服务器现有服务冲突）：
+#   MySQL:  3307 -> 3306
+#   Redis:  6380 -> 6379
+#   Nginx:  8080 -> 80
+#   后端:   8011 -> 8000
+#   Web:    3011 -> 80
+#   H5:     3022 -> 80
 
 services:
   # MySQL 数据库
   db:
-    image: mysql:8.0
+    image: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/library/mysql:8.0
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
@@ -15,7 +23,7 @@ services:
       - mysql_data:/var/lib/mysql
       - ./backup:/backup
     ports:
-      - "3306:3306"
+      - "3307:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -26,13 +34,13 @@ services:
 
   # Redis 缓存
   redis:
-    image: redis:7-alpine
+    image: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/library/redis:7-alpine
     restart: always
     command: redis-server --appendonly yes
     volumes:
       - redis_data:/data
     ports:
-      - "6379:6379"
+      - "6380:6379"
     networks:
       - aiteng-network
 
@@ -122,16 +130,14 @@ services:
     networks:
       - aiteng-network
 
-  # Nginx 反向代理 (可选，用于统一入口)
+  # Nginx 反向代理
   nginx:
-    image: nginx:alpine
+    image: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/library/nginx:alpine
     restart: always
     ports:
-      - "80:80"
-      - "443:443"
+      - "8080:80"
     volumes:
-      - ./nginx/nginx.production.conf:/etc/nginx/nginx.conf:ro
-      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - ./nginx/nginx.http-only.conf:/etc/nginx/nginx.conf:ro
       - static_data:/var/www/aiteng/static:ro
       - media_data:/var/www/aiteng/media:ro
     depends_on:
