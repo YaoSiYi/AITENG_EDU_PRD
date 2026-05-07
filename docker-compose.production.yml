@@ -1,13 +1,16 @@
 # 艾腾教育 - 生产环境 Docker Compose 配置
 # 使用方法: docker compose -f docker-compose.production.yml up -d
 # 
-# 端口映射（避免与服务器现有服务冲突）：
+# 端口映射：
 #   MySQL:  3307 -> 3306
 #   Redis:  6380 -> 6379
-#   Nginx:  8080 -> 80
 #   后端:   8011 -> 8000
-#   Web:    3011 -> 80
-#   H5:     3022 -> 80
+#   Web:    3011 -> 80 (由系统 Nginx 代理)
+#   H5:     3022 -> 80 (由系统 Nginx 代理)
+#
+# 域名访问：
+#   www.aitengjiaoyu.top -> Web 管理后台
+#   h5.aitengjiaoyu.top  -> H5 移动端
 
 services:
   # MySQL 数据库
@@ -127,23 +130,6 @@ services:
       - "3022:80"
     depends_on:
       - backend
-    networks:
-      - aiteng-network
-
-  # Nginx 反向代理
-  nginx:
-    image: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/library/nginx:alpine
-    restart: always
-    ports:
-      - "8080:80"
-    volumes:
-      - ./nginx/nginx.http-only.conf:/etc/nginx/nginx.conf:ro
-      - static_data:/var/www/aiteng/static:ro
-      - media_data:/var/www/aiteng/media:ro
-    depends_on:
-      - backend
-      - frontend-web
-      - frontend-h5
     networks:
       - aiteng-network
 
