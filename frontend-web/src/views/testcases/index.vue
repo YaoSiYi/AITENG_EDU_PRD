@@ -225,8 +225,8 @@
         </el-table-column>
         <el-table-column prop="assignee_name" label="指派人员" width="100" align="center">
           <template #default="{ row }">
-            <el-dropdown @command="(val) => handleAssign(row, val)">
-              <el-tag :type="row.assignee_name ? 'success' : 'info'" size="small" style="cursor: pointer">
+            <el-dropdown @command="(val) => handleAssign(row, val)" :disabled="isRowDisabled(row)">
+              <el-tag :type="row.assignee_name ? 'success' : 'info'" size="small" :style="{ cursor: isRowDisabled(row) ? 'not-allowed' : 'pointer' }">
                 {{ row.assignee_name || '未指派' }}
                 <el-icon class="el-icon--right"><ArrowDown /></el-icon>
               </el-tag>

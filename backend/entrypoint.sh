@@ -5,15 +5,23 @@ echo "等待数据库就绪..."
 python << END
 import sys
 import time
+import os
 import pymysql
+
+db_host = os.environ.get('DB_HOST', 'db')
+db_port = int(os.environ.get('DB_PORT', 3306))
+db_user = os.environ.get('DB_USER', 'root')
+db_password = os.environ.get('DB_ROOT_PASS', os.environ.get('MYSQL_ROOT_PASSWORD', 'education123'))
+db_name = os.environ.get('DB_NAME', 'education')
 
 for i in range(30):
     try:
         conn = pymysql.connect(
-            host='db',
-            user='root',
-            password='education123',
-            database='education'
+            host=db_host,
+            port=db_port,
+            user=db_user,
+            password=db_password,
+            database=db_name
         )
         conn.close()
         print("数据库连接成功!")
@@ -27,11 +35,16 @@ sys.exit(1)
 END
 
 echo "运行数据库迁移..."
-python manage.py makemigrations
-python manage.py migrate
+python manage.py makemigrations --noinput
+python manage.py migrate --noinput
 
 echo "收集静态文件..."
 python manage.py collectstatic --noinput
 
 echo "启动 Gunicorn..."
-exec gunicorn --workers 4 --bind 0.0.0.0:8000 config.wsgi:application
+exec gunicorn --workers ${GUNICORN_WORKERS:-4} \
+    --bind 0.0.0.0:8000 \
+    --timeout 120 \
+    --access-logfile - \
+    --error-logfile - \
+    config.wsgi:application

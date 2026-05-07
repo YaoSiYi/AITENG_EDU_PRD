@@ -1,0 +1,152 @@
+# 艾腾教育 - 生产环境 Docker Compose 配置
+# 使用方法: docker compose -f docker-compose.production.yml up -d
+
+services:
+  # MySQL 数据库
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
+      MYSQL_DATABASE: ${DB_NAME:-education_prod}
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backup:/backup
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - aiteng-network
+
+  # Redis 缓存
+  redis:
+    image: redis:7-alpine
+    restart: always
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - aiteng-network
+
+  # Django 后端 API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - static_data:/app/static
+      - media_data:/app/media
+    ports:
+      - "8011:8000"
+    env_file: .env
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      REDIS_URL: redis://redis:6379/1
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - aiteng-network
+
+  # Celery Worker
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    command: celery -A config worker -l info
+    env_file: .env
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      REDIS_URL: redis://redis:6379/1
+    depends_on:
+      - backend
+      - redis
+    networks:
+      - aiteng-network
+
+  # Celery Beat 定时任务
+  celery-beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    command: celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    env_file: .env
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      REDIS_URL: redis://redis:6379/1
+    depends_on:
+      - backend
+      - redis
+    networks:
+      - aiteng-network
+
+  # 前端 Web 管理后台
+  frontend-web:
+    build:
+      context: ./frontend-web
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3011:80"
+    depends_on:
+      - backend
+    networks:
+      - aiteng-network
+
+  # Uni-app H5 移动端
+  frontend-h5:
+    build:
+      context: ./frontend-uniapp
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3022:80"
+    depends_on:
+      - backend
+    networks:
+      - aiteng-network
+
+  # Nginx 反向代理 (可选，用于统一入口)
+  nginx:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.production.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - static_data:/var/www/aiteng/static:ro
+      - media_data:/var/www/aiteng/media:ro
+    depends_on:
+      - backend
+      - frontend-web
+      - frontend-h5
+    networks:
+      - aiteng-network
+
+volumes:
+  mysql_data:
+  redis_data:
+  static_data:
+  media_data:
+
+networks:
+  aiteng-network:
+    driver: bridge

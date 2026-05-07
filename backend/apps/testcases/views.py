@@ -240,8 +240,28 @@ class TestCaseViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'], url_path='users')
     def users(self, request):
-        """获取可指派的用户列表（排除admin）"""
-        users = User.objects.exclude(username='admin').values('id', 'nickname', 'username')
+        """
+        获取可指派的用户列表（根据期数过滤）
+        规则：
+        1. 管理员始终显示
+        2. 如果当前用户有期数，显示相同期数的所有用户
+        3. 如果当前用户没有期数，只显示管理员
+        """
+        current_user = request.user
+        current_period = getattr(current_user, 'period', '').strip()
+
+        # 管理员始终显示
+        admin_users = User.objects.filter(role='admin')
+
+        # 如果当前用户有期数，添加相同期数的用户（排除管理员，避免重复）
+        if current_period:
+            same_period_users = User.objects.filter(period=current_period).exclude(role='admin')
+            users = admin_users | same_period_users
+        else:
+            # 如果当前用户没有期数，只显示管理员
+            users = admin_users
+
+        users = users.values('id', 'nickname', 'username', 'role', 'period').order_by('id')
         return Response(list(users))
 
     def destroy(self, request, *args, **kwargs):
